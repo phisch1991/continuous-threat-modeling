@@ -1,5 +1,7 @@
 = Continuous Threat Modeling
 
+WARNING: This document is a draft. It has not been reviewed yet. It is a working document and subject to change.
+
 == Term
 
 Continous Threat Modeling includes processes and tools to support threat modeling in DevOps teams in a frequent and highly team-adopted manner.
@@ -22,16 +24,47 @@ From my point of view, this has some negative consequences:
 
 * Threat modeling is not done as often as it should be done. Although we have a daily-changing system, we regard threat modeling as a one-off effort and and as a "tick in the box".
 * Threat modeling is totally seperate from usual work. It feels like a "special event" (in a negative sense) and an additional effort not directly linked with our daily business.
-* The context (Why do we do threat modeling?) gets lost for the team members as they only implement countermeasures without being part of the discussion about the actual threat, the relevance/importance and the available options to manage the resulting risks. This leads to the feeling, that threat modeling is something the enterprise wants from the team (it should be the other way around: threat modeling should be the responsibility of the team; the enterprice can of course assist with specialized personell).
+* The context (Why do we do threat modeling?) gets lost for the team members as they only implement countermeasures without being part of the discussion about the actual threat, the relevance/importance and the available options to manage the resulting risks. This leads to the feeling, that threat modeling is something the enterprise wants from the team (it should be the other way around: threat modeling should be the responsibility of the team; the enterprice can of course assist with specialized personell and other resources).
 
 == Desired state
 
-// TODO Describe desired state in more detail
-* Team members are part of the process from beginning on
-* Doing threat modeling feels very much like development (toolchain, process)
-* Team feels responsible for process and outcome
+* Team members should be part of the threat modeling process from the beginning on.
+* The processes and tools for threat modeling are highly integrated into the normal development and operation process.
+* The team in it's entirety feels responsible for the process and the outcome (not only the <<Security facilitator role, security facilitator>>). 
 
 == Implementation
+
+=== Overview
+
+**Level 1: Prepare the team**
+
+* Implement a Security facilitator role (see <<Security facilitator role>> section for details)
+* Plan an initial workshop with the whole team to:
+** reduce the "threat modeling is annoying" thinking and make it fun, e. g. by using a creative <<Approaches, approach>> 
+** inform the team about the approaches and recommend a methodology and tool (see <<Threat Modeling Tools>> for more details)
+** select the desired tool together with the team
+** sketch an initial model of your system together with the team
+* Use the model sketch to prepare the model (maybe with one other team member, but not with the whole team)
+
+**Level 2: Make it regular**
+
+* Schedule a regular meeting (e. g. 2h every four weeks) to answer the questions like:
+** Is the model still up to date?
+** Have components been added/removed?
+** Did we change any communikation links?
+** What could possibly go wrong?
+* Get used to the methodologies and make sure, your team uses common terms to reduce misunderstandings
+
+**Level 3: Reduce the "special event" character**
+
+* Reduce the scope of the regular meetings and shift the qestions from level 2 step-by-step to your regular sprint meetings (or whatever methods you use)
+* If you have the feeling that security discussions come up in sprint meetings or daily work, but are "postponed" to the regular threat modeling meeting, encourage the team not to do so. Of course, there might be exceptions from this rule, where it makes sense to have a separate discussion, but in many cases this behavior is triggered by considering threat modeling as separate from daily work (which is not a desired behavior)
+
+**Level 4: Just do it without thinking about it**
+
+* Kill the regular threat modeling meeting. You fully integrated threat modeling into your normal workflow.
+
+=== Approaches
 
 I think, there are four pillars of threat modeling, which in combination have a very broad coverage:
 
@@ -41,26 +74,38 @@ I think, there are four pillars of threat modeling, which in combination have a 
 ** Supports thinking out of the box
 * Scenario-based approach (_"Imagine, that an attacker has gained shell access in our web application docker container. What could happen next? How could we stop him?"_)
 ** Considers defense-in-depth
-** Feels real and the team gets a sense for security 
+** Is similar to real-world scenarios and the team gets a sense/awareness for security 
 ** Triggers the team to deep-dive into technical considerations
 * Systematic approach (_"Let's systematically walk through the STRIDE categories and analyse potential threats."_)
-** Assures that we do not forget to think about a threat category (no or at least less blind spots)
-** Guides the team through the categories and increases awareness
+** Assures that we do not forget a threat category (no or at least only few and small blind spots)
+** Guides the team through the categories
 * Automatic/Rule-based approach (_"Let's model our system, feed the data into an intelligence and ask it for probable risks, e. g. SQL injection for any web application connected to a database."_)
-** Covers no-brainers
-** Frees up time for the other approaches
-** Helps to comply with market or enterprise standards
+** Covers no-brainer risks & countermeasures
+** Frees up time for more sophisticated tasks
+** Supports compliance with market or enterprise standards
 
-// TODO Describe the process and how tools can help
-// TODO Describe maturity levels and step-by-step implementation (start small)
+=== Security facilitator role
+
+I recommend to implement a role (let's call it "Security facilitator") which is a bit more knowledged and trained in security aspects than other team members. He/she can consult the team when it comes to security questions and facilitate space/discussions for security-relevant aspects. The most important characteristics of this role are:
+
+* The Security facilitator should have the space and time to deal with latest security news and knowledge.
+* It should not be a full-time job. It is important to be part of the normal processes and tasks to stay close to the rest of the team.
+* The role should only be visible within the team. Of course, the person holding the role should network with others in the enterprise, but the role itself should not become a privilege.
+* The role is not the person responsible for security. The team is responsible.
 
 == Threat Modeling Tools
 
-There are several tools available for threat modeling, both commercial and free/open-source. The following list contains an imcomplete and random selection of some tools crossing my way:
+There are several tools available for threat modeling, both commercial and free/open-source. For me, the most important aspects of a threat modeling tool are:
 
-* https://threagile.io/[Threagile]
-* https://owasp.org/www-project-threat-dragon/[OWASP Threat Dragon]
-* https://threatspec.org/[threatspec]
+* The tool should be accepted by the team (accepted means intrinsicly accepted). This is very important as the tool should not be the security facilitator's tool, but the team's tool) 
+* The tool should fit the normal workflow (e.g. if the team has an GitOps workflow, a threat model as code would be a good option). This reduces the amount of tools the team must adopt and it feels closer to the tasks the team already do.
+* The tool should allow a small start to support iterative development. The smaller you can start, the smaller is the barrier to use the tool. The optimal tool would allow just the enumeration of the components in the first iteration and the step-by-step completion in future iterations.
+
+The following list contains an imcomplete and random selection of some tools crossing my way:
+
+* https://threagile.io/[Threagile] (already tried out in detail)
+* https://owasp.org/www-project-threat-dragon/[OWASP Threat Dragon] (already tried out superficially)
+* https://threatspec.org/[threatspec] (not tried out yet)
 
 == Further reading
 
