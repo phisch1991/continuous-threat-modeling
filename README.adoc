@@ -1,112 +1,47 @@
-= Continuous Threat Modeling
+# Continuous Threat Modeling
 
-WARNING: This document is a draft. It has not been reviewed yet. It is a working document and subject to change.
+## Einleitung
 
-== Term
+Bedrohungsanalysen (oder englisch: Threat Modeling) sind ein probates Mittel, IT-Infrastrukturen und Anwendungen gegen Bedrohungen zu schützen, indem diese systematisch identifiziert und daraus resultierende Risiken mitigiert werden. Typischerweise finden Bedrohungsanalysen im professionellen Umfeld in einem festgelegten Turnus oder zu bestimmten Events statt, beispielsweise bei umfangreichen Änderungen der System-Architektur. Durchgeführt werden diese durch eine enge Zusammenarbeit zwischen IT-Sicherheitsspezialisten und dem jeweils zuständigen technischen Architekten.
 
-Continous Threat Modeling includes processes and tools to support threat modeling in DevOps teams in a frequent and highly team-adopted manner.
+Die bisherige Vorgehensweise lässt Bedrohungsanalysen als ein besonderes Ereignis erscheinen, das von ausgewählten Personen begleitet wird und zusätzlichen Aufwand abseits des Tagesgeschäfts mit sich bringt. Aber wie lässt sich dies mit Entwicklungsteams vereinen, die in den letzten Jahren durch die Implementierung agiler Arbeitsmethoden festgelegte Rollen zugusten einer Team-Verantwortung abgelegt haben und durch die kontinuierliche Automatisierung Änderungen in einer hohen Frequenz bis in die Produktionsumgebung liefern?
 
-== Motivation & problem statement
+Andere Bereiche der Entwicklung sind bereits im agilen Alltag angekommen und werden bestens durch neue Vorgehensweisen und Werkzeuge unterstützt. Dokumentation beispielsweise wird nicht mehr mit separaten Textverarbeitungsprogrammen verwaltet, sondern direkt in der Versionsverwaltung, oft sogar in maschinenlesbarer Form. Auch Tests sind schon lange nicht mehr der separaten Testabteilung vorbehalten, in der Test-Design, -Durchführung und -Auswertung getrennt von der Entwicklung erfolgen. Durch die hohe Änderungsfrequenz sind Tests auf allen Ebenen in automatisierter Form unerlässlich. Und auch Sicherheitstests wie Vulnerability & Compliance Scanner sind bereits in den Build- und Deployment-Pipelines der DevOps Teams angekommen.
 
-I am very interested in security and how to implement it in way, that it is not regarded as "additional workload", but as business as usual. In the DevOps context, there are several examples in the past going the same path from "annoying" to "normal":
+## Zukunft von Bedrohungsanalysen
 
-* *Documentation:* At the beginning of my career, documentation was the last step before going live. Implementation was already done, but documentation was still to do. And in many cases, documentation was done in a word processor such as Microsoft Word and archived in a document management system. Thanks to the available toolchains, documentation is now implemented into the development flow: It can be stored as code (and - not less important - along with the code) and it can be consumed not only on your local machine with your word processor, but also be rendered as a website by your ci/cd pipelines, if required.
-* *Testing:* Testing is another example for this process. In ealier years, testing was outsourced to a specialized enterprise unit, where testers and test automators followed the instructions from the test designers to assure software quality. Thanks to new approaches (e. g. test driven development), highly automated testing tools on all levels (unit tests, integration tests, acceptance tests for UIs, APIs and other interfaces) and the inclusion of those tools into the ci/cd pipelines, tests are a fundamental part of development and not a stage after development.
+Warum Bedrohungsanalysen erst langsam diesem Trend folgen, hat verschiedene Gründe. Zum einen haben Bedrohungsanalysen oft außerhalb der Blickweite des Teams stattgefunden, nämlich zwischen IT-Sicherheitsspezialisten und einem ausgewählten Team-Mitglied, in den meisten Fällen dem Architekten. Lediglich die Umsetzung der Maßnahmen lag in der Hand des Teams. Dies hat zur Folge, dass der Kontext, aus dem diese Maßnahmen abgeleitet wurden, verloren geht und das Team letztlich Dinge umsetzt, ohne ein Verständnis für das Problem zu erhalten. Außerdem wird oft vermutet, dass für die Analysen spezielles, Experten vorbehaltenes Wissen notwendig ist. Zuletzt sorgen Prozessabläufe für eine nicht hilfreiche Wahrnehmung: Bedrohungsanalysen werden als eine Tätigkeit angesehen, das das Unternehmen vom Team fordert. Dabei sollte es genau umgekehrt sein: Das Team sollte aus eigenem Interesse Bedrohungsanalysen durchführen, gerne unterstützt durch Angebote des Unternehmens.
 
-The evolution of these two examples were some kind of forced by the increasing speed of development cycles. The phases "design - plan - implement - test - document" are merging and speeding up. We do not have a 8 month cycle, but a few-hours to few-days cycle.
+Doch wie kann die Zukunft von Bedrohungsanalysen aussehen? Zunächst einmal ist es wichtig, alle an der Entwicklung beteiligten Personen in den Prozess zu integrieren. Dies sorgt erstens für ein höheres Verantwortungsgefühl des Gesamtteams für die Sicherheit des Systems, zweitens aber auch für stärkere Wissensverteilung im Team, was die Ergebnisse der Analyse sowie geeignete Gegenmaßnahmen betrifft. Außerdem kennt kaum jemand das System - und damit auch seine Schwachstellen - besser als der/die Entwickler:in selbst. 
 
-If we have a look at security aspects (and threat modeling is a quite big one, as it covers many layers from a high level system view and to technical implementation details of single components) it seems to be different: 
+Ein weiterer Erfolgsfaktor ist die starke Integration der Bedrohungsanalyse in die Team-Prozesse. Verfolgt das Team beispielsweise eine konsequente Everything-as-Code-Strategie, sollten auch die unterstützenden Tools diesem Credo folgen. Dies sorgt vorallem dafür, dass das Team mit Tools arbeiten kann, mit denen es soweiso tagtäglich arbeitet (in diesem Beispiel mit der IDE).
 
-* Many companies have governance rules to do threat modeling on project kick-off, once a year or on major system changes. These triggering events do not happen very frequently and seem to be a relict from times where development cycles are much slower.
-* Threat modeling was seperated into an analysis part, where a security specialist discusses with the project's IT architect, and an implementation part, where developers implemented measures specified in the first part without further knowledge of the context.
+## Ansätze für Bedrohungsanalysen
 
-From my point of view, this has some negative consequences:
+Für Bedrohungsanalysen in DevOps Teams gibt es mehrere Ansätze. Es bietet sich an, diese in Workshops zu kombinieren, um einerseits systematische und verlässliche Ergebnisse zu erhalten, andererseits auch das breite Wissen des Teams zu nutzen und insbesondere realistische Szenarien in den Vordergrund zu rücken. 
 
-* Threat modeling is not done as often as it should be done. Although we have a daily-changing system, we regard threat modeling as a one-off effort and and as a "tick in the box".
-* Threat modeling is totally seperate from usual work. It feels like a "special event" (in a negative sense) and an additional effort not directly linked with our daily business.
-* The context (Why do we do threat modeling?) gets lost for the team members as they only implement countermeasures without being part of the discussion about the actual threat, the relevance/importance and the available options to manage the resulting risks. This leads to the feeling, that threat modeling is something the enterprise wants from the team (it should be the other way around: threat modeling should be the responsibility of the team; the enterprice can of course assist with specialized personell and other resources).
+_Kreativer Ansatz:_ Eine exemplarische Frage für diesen Ansatz lautet "Stell dir vor, dass eine der größten Tageszeitungen über einen Einbruch in unser IT-System berichtet. Was könnte passiert sein?". Der Ansatz eignet sich besonders für den Einstieg ins Thema sowie als Warm-Up für Workshops, da keine falschen Antworten möglich sind und die Kreativität angeregt wird. Dies führt dazu, dass out-of-the-box gedacht wird. Der Erfolg ist abhängig von der individuellen Beteiligung der Teilnehmer.
 
-== Desired state
+_Szenario-basierter Ansatz:_ Bei diesem Ansatz stehen konkrete Szenarien im Vordergrund: "Stell dir vor, ein Angreifer hat Shell-Zugriff im Docker-Container unserer Web-Anwendung erhalten. Was könnte als nächstes passieren? Wie könnten wir ihn stoppen?" Da hier echte Schadensszenarien besprochen werden, wird nicht nur eine theoretische Diskussion angeregt, sondern auch direkt nach praktischen Auswirkungen geschaut. Besonders bei Defense-in-Depth Überlegungen ist dieser Ansatz erfolgsversprechend.
 
-* Team members should be part of the threat modeling process from the beginning on.
-* The processes and tools for threat modeling are highly integrated into the normal development and operation process.
-* The team in it's entirety feels responsible for the process and the outcome (not only the <<Security facilitator role, security facilitator>>). 
+_Systematischer Ansatz:_ Systematische Ansätze wie STRIDE dürfen natürlich nicht fehlen. Diese stellen sicher, dass Bedrohungen aus allen üblichen Kategorien betrachtet werden und kein blinder Fleck entsteht. Gerade für Teams, die sich anfänglich mit Bedrohungsanalysen beschäftigen, bietet dieser Ansatz aus zweierlei Sicht eine Hilfestellung: Er vermittelt einen Eindruck über die Bandbreite der möglichen Bedrohungen und führt das Team gleichzeitig Schritt für Schritt durch die verschiedenen Kategorien.
 
-== Implementation
+_Automatischer/Regelbasierter Ansatz:_ Als Ergänzung zu den oben genannten Ansätzen können Bedrohungen zudem durch Automatismen und Regeln erkannt werden. Beispielsweise kann ein solches System das Team darauf hinweisen, dass eine im Internet exponierte Web Applikation mit einer Datenbank-Kommunikation grundsätzlich einer SQL-Injection ausgesetzt sein kann und es geeigneter Gegenmaßnahmen bedarf. Dieser Ansatz sollte toolunterstützt sein und bedarf einer maschinenlesbaren Form des System-Models sowie eines geeigneten Regelsets. Realisierbar ist das beispielsweise mit Tools wie Threagile. Die Aufgabe des Teams ist hierbei neben der Integration eines solchen Tools die Bewertung der Hinweise, die das Tool gibt. Ein Vorteil liegt darin, dass aktiv auf übliche Risiken hingewiesen wird und somit Compliance und Markt-Standards unterstützt werden können (z. B. OWASP Top Ten).
 
-=== Overview
+## Umsetzung
 
-**Level 1: Prepare the team**
+Wie nun diese Strategie in der unternehmerischen Praxis umgesetzt werden kann, zeigen die folgenden fünf Schritte: Der Security Scout, die Vorbereitung, die Regelmäßigkeit, die Normalität und letztlich das Unbewusste.
 
-* Implement a Security facilitator role (see <<Security facilitator role>> section for details)
-* Plan an initial workshop with the whole team to:
-** reduce the "threat modeling is annoying" thinking and make it fun, e. g. by using a creative <<Approaches, approach>> 
-** inform the team about the approaches and recommend a methodology and tool (see <<Threat Modeling Tools>> for more details)
-** select the desired tool together with the team
-** sketch an initial model of your system together with the team
-* Use the model sketch to prepare the model (maybe with one other team member, but not with the whole team)
+_Security Scout:_ Um das Team auf die kommenden Aufgaben vorzubereiten, ist es sinnvoll, eine Rolle einzuführen, die sich besonders um das Theam IT-Sicherheit im Team kümmert. Anders als bisherige exklusive Rollen ist damit aber nicht gemeint, dass sich nur diese Person um die Sicherheit des Systems kümmert und verantwortlich fühlt - die Verantwortung für die Sicherheit liegt im Gesamtteam. Vielmehr ist es eine Art Scout, der das Team unterstützt, die neuen Aufgaben wahrzunehmen, indem er/sie den Freiraum hat, sich mit Neuigkeiten im Bereich IT-Sicherheit auseinanderzusetzen, das Team organisatorisch beispielsweise im Rahmen von Workshops anzuleiten und auch kritische Fragen zu stellen. Dabei ist darauf zu achten, dass es sich nicht um eine Vollzeit-Aufgabe handelt, da ansonsten das Risiko einer Separierung besteht. Die Rolle sollte weiterhin von jemandem wahrgenommen werden, der/die den Rückhalt des Teams hat. Eine externe Nominierung dieser Person sollte vermieden werden.
 
-**Level 2: Make it regular**
+_Vorbereitung:_ Um einen Einstieg in das Thema Bedrohungsanalysen zu schaffen, bietet es sich an, einen initialen Workshop durchzuführen. Maßgebliches Ziel sollte sein, dass die Bedrohungsanalyse nicht mehr als eine exklusive, außerhalb des Teams stattfindende und langweilige Tätigkeit betrachtet wird. Dafür sollten die möglichen Ansätze und Methoden erklärt und ein Tool ausgewählt werden - dies kann zu Beginn auch ein Whiteboard sein. Optimalerweise wird bereits jetzt eine erste Threat Modeling Iteration durchgeführt, da dadurch von der Metaebene auf die tatsächliche Anwendung gewechselt und erste Berührungsängste beseitigt werden.
 
-* Schedule a regular meeting (e. g. 2h every four weeks) to answer the questions like:
-** Is the model still up to date?
-** Have components been added/removed?
-** Did we change any communikation links?
-** What could possibly go wrong?
-* Get used to the methodologies and make sure, your team uses common terms to reduce misunderstandings
+_Regelmäßigkeit:_ Nachdem das Team auf die bevorstehenden Aufgaben vorbereitet wurde, ist es wichtig, die Bedrohungsanalyse zu einer regelmäßigen Tätigkeit zu machen, beispielsweise im Rahmen eines monatlich stattfindenden, 2-stündigen Regeltermins. Ziel jedes Meetings ist es, zu prüfen, ob das Bedrohungsmodell vollständig und noch aktuell ist und welche Dinge sich seit der letzten Iteration geändert haben (neue Systeme, entfernte Komponenten, veränderte Kommunikationsbeziehungen, usw.). Um das Meeting attraktiv zu gestalten, bieten sich insbesondere kreative oder szenario-basierte Ansätze an. 
 
-**Level 3: Reduce the "special event" character**
+_Normalität:_ Obwohl nun die Bedrohungsanalyse bereits wesentlich regelmäßiger durchgeführt wird und die Aktualität sowie das Wissen im Team gesteigert wurde, sollte darauf hingearbeitet werden, die Analyse nicht mehr als explizite Veranstaltung zu sehen, sondern als Aufgabe im Rahmen der normalen Meetings (im Falle von Scrum beispielsweise im Sprint Refinement Prozess sowie im Sprint Planning Meeting oder auch im Review). Optimalerweise werden die Diskussionen Schritt für Schritt dorthin verlagert und das regelmäßige Bedrohungsanalyse-Meeting immer weiter reduziert. Es ist wichtig, dass das Team motiviert wird, Sicherheitsaspekte sofort zu diskutieren, wenn sie - beispielsweise im regulären Planungsprozess - auftreten, um zu vermeiden, dass diese zum nächsten regelmäßigen Bedrohungsanalyse-Meeting aufgeschoben werden. Dies fördert im Team das Verständnis dafür, dass die Planung der technischen Umsetzung unabdingbar mit Sicherheitsüberlegungen einhergehen.
 
-* Reduce the scope of the regular meetings and shift the qestions from level 2 step-by-step to your regular sprint meetings (or whatever methods you use)
-* If you have the feeling that security discussions come up in sprint meetings or daily work, but are "postponed" to the regular threat modeling meeting, encourage the team not to do so. Of course, there might be exceptions from this rule, where it makes sense to have a separate discussion, but in many cases this behavior is triggered by considering threat modeling as separate from daily work (which is not a desired behavior)
+_Unbewusst:_ Der Schritt _Normalität_ ist ein Prozess, dessen Abschluss das Absagen des regelmäßigen Meetings darstellt. Der komplette Bedrohungsanalyse-Prozess ist nun stark in die alltägliche Arbeitsweise des Teams integriert, findet regelmäßig statt, ohne dass es ein separates Meeting benötigt und wurde vom Team verstanden.
 
-**Level 4: Just do it without thinking about it**
+## Fazit
 
-* Kill the regular threat modeling meeting. You fully integrated threat modeling into your normal workflow.
-
-=== Approaches
-
-I think, there are four pillars of threat modeling, which in combination have a very broad coverage:
-
-* Creative approach (_"Imagine, that the largest newspaper company reports about an intrusion into your system. What could have happend?"_)
-** Can be fun for the team
-** Requires individual engagement
-** Supports thinking out of the box
-* Scenario-based approach (_"Imagine, that an attacker has gained shell access in our web application docker container. What could happen next? How could we stop him?"_)
-** Considers defense-in-depth
-** Is similar to real-world scenarios and the team gets a sense/awareness for security 
-** Triggers the team to deep-dive into technical considerations
-* Systematic approach (_"Let's systematically walk through the STRIDE categories and analyse potential threats."_)
-** Assures that we do not forget a threat category (no or at least only few and small blind spots)
-** Guides the team through the categories
-* Automatic/Rule-based approach (_"Let's model our system, feed the data into an intelligence and ask it for probable risks, e. g. SQL injection for any web application connected to a database."_)
-** Covers no-brainer risks & countermeasures
-** Frees up time for more sophisticated tasks
-** Supports compliance with market or enterprise standards
-
-=== Security facilitator role
-
-I recommend to implement a role (let's call it "Security facilitator") which is a bit more knowledged and trained in security aspects than other team members. He/she can consult the team when it comes to security questions and facilitate space/discussions for security-relevant aspects. The most important characteristics of this role are:
-
-* The Security facilitator should have the space and time to deal with latest security news and knowledge.
-* It should not be a full-time job. It is important to be part of the normal processes and tasks to stay close to the rest of the team.
-* The role should only be visible within the team. Of course, the person holding the role should network with others in the enterprise, but the role itself should not become a privilege.
-* The role is not the person responsible for security. The team is responsible.
-
-== Threat Modeling Tools
-
-There are several tools available for threat modeling, both commercial and free/open-source. For me, the most important aspects of a threat modeling tool are:
-
-* The tool should be accepted by the team (accepted means intrinsicly accepted). This is very important as the tool should not be the security facilitator's tool, but the team's tool) 
-* The tool should fit the normal workflow (e.g. if the team has an GitOps workflow, a threat model as code would be a good option). This reduces the amount of tools the team must adopt and it feels closer to the tasks the team already do.
-* The tool should allow a small start to support iterative development. The smaller you can start, the smaller is the barrier to use the tool. The optimal tool would allow just the enumeration of the components in the first iteration and the step-by-step completion in future iterations.
-
-The following list contains an imcomplete and random selection of some tools crossing my way:
-
-* https://threagile.io/[Threagile] (already tried out in detail)
-* https://owasp.org/www-project-threat-dragon/[OWASP Threat Dragon] (already tried out superficially)
-* https://threatspec.org/[threatspec] (not tried out yet)
-
-== Further reading
-
-* https://www.threatmodelingmanifesto.org/[Threat Modeling Manifesto]
+Um Bedrohungsanalysen im DevOps Umfeld an die gesteigerte Entwicklungs- und Deployment-Frequenz anzupassen und die Kenntnisse und Fähigkeiten auch im Team zu verankern, sind verschiedene Aspekte notwendig: Verschiedenartige Ansätze können einerseits helfen, Bedrohungsanalysen abwechslungsreich und selbsterklärend für das Team zu gestalten, andererseits die gesamte Bandbreite abdecken, von automatisierter Identifizierung von Bedrohungen bis hin zu sehr team- und systemindividuellen Punkten. Die kontinuierliche Implementierung durch die Förderung des Sicherheitsdenkens im Team über die regelmäßige Durchführung von Analysen bis hin zur vollständigen Integration in den Entwicklungsprozess stellt sicher, dass das Team Schritt für Schritt das notwendige Wissen wie auch das Verständnis für Sicherheitsaspekte aufbaut. Ziel ist es, ein autarkes Team zu formen, das sich abseits der Checkbox-Compliance selbst für die Sicherheit der entwickelten und betriebenen Komponenten in der Verantwortung sieht und auf Sicherheit spezialisierte Einheiten des Unternehmens als Beratungsangebot und nicht als Last oder Exekutive betrachtet.
